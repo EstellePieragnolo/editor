@@ -1,5 +1,9 @@
 import React from 'react';
-import { Editor, EditorState, RichUtils } from 'draft-js';
+import { EditorState, KeyBindingUtil, RichUtils } from 'draft-js';
+import Editor from "draft-js-plugins-editor"
+import createHighlightPlugin from './plugins/highlightPlugin'
+
+const highlightPlugin = createHighlightPlugin();
 
 class PageContainer extends React.Component {
     constructor(props) {
@@ -7,7 +11,11 @@ class PageContainer extends React.Component {
         this.state = {
             editorState: EditorState.createEmpty()
         }
+        this.plugins = [
+            highlightPlugin
+        ]
     }
+
 
     onChange = (editorState) => {
         this.setState({ editorState })
@@ -17,9 +25,6 @@ class PageContainer extends React.Component {
         const newState = RichUtils.handleKeyCommand(this.state.editorState, command)
         if (newState) {
             this.onChange(newState);
-            return 'handled'
-        } else {
-            return 'notHandled'
         }
 
     }
@@ -33,8 +38,12 @@ class PageContainer extends React.Component {
     onUnderline = () => {
         this.onChange(RichUtils.toggleInlineStyle(this.state.editorState, 'UNDERLINE'))
     }
+    onHighlight = () => {
+        this.onChange(RichUtils.toggleInlineStyle(this.state.editorState, 'HIGHLIGHT'))
+    }
 
     render() {
+
         return (
             <div>
                 <button onClick={this.onItalic}>
@@ -46,10 +55,13 @@ class PageContainer extends React.Component {
                 <button onClick={this.onUnderline}>
                     <p>U</p>
                 </button>
+                <button onClick={this.onHighlight}>
+                    <p>H</p>
+                </button>
                 <Editor
                     editorState={this.state.editorState}
                     onChange={this.onChange}
-                    handleKeyCommand={this.handleKeyCommand}
+                    plugins={this.plugins}
                 />
             </div>
         )
